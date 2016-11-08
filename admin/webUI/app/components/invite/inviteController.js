@@ -261,6 +261,8 @@
     candidatesVm.expires = expires;
     candidatesVm.cancel = cancel;
     candidatesVm.resend = resend;
+    candidatesVm.showModal = showModal;
+    candidatesVm.candidate_email = "";
 
     candidatesVm.quizID = $stateParams.quizID;
 
@@ -303,16 +305,19 @@
       console.log(err);
     });
 
+    function showModal(candidateID, email) {
+      console.log(email)
+      candidatesVm.candidate_email = email;
+      dialog.showModal();
+      dialog.querySelector('.submit').addEventListener('click', function() {
+        candidatesVm.cancel(candidateID);
+        dialog.close();
+      })
+    }
+
     angular.element(document).ready(function() {
       var dialog = document.querySelector('dialog');
-      var $delete = $('.delete-cand');
-      if (!dialog.showModal) {
-        dialogPolyfill.registerDialog(dialog);
-      }
-      $delete.on('click', function() {
-        console.log("here")
-        dialog.showModal();
-      });
+
       dialog.querySelector('.close').addEventListener('click', function() {
         dialog.close();
       });

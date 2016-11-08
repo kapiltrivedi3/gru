@@ -44,7 +44,7 @@
               </tr>
             </thead>
             <tbody ng-repeat="candidate in candidateVm.quizCandidates | orderBy:candidateVm.sortType:candidateVm.sortReverse | filter:searchCand" on-finish-render="ngRepeatFinished">
-              <tr ng-if="candidate.complete == 'true'">
+              <tr ng-show="candidate.complete == 'true'">
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.name}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.email}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.score | number: 2}}</td>
@@ -90,14 +90,14 @@
               </tr>
             </thead>
             <tbody ng-repeat="candidate in candidateVm.quizCandidates | orderBy:candidateVm.sortType:candidateVm.sortReverse | filter:searchCand">
-              <tr ng-if="candidate.complete != 'true' && candidate.cancel != 'true'">
+              <tr ng-show="candidate.complete != 'true' && candidate.cancel != 'true'">
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.email}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.invite_sent | date : 'MMM dd, yyyy'}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidateVm.expires(candidate.validity)}}</td>
                 <td class="mdl-data-table__cell--non-numeric">
                   <a ui-sref="invite.edit({quizID: candidateVm.quizID, candidateID: candidate._uid_})">EDIT</a> &nbsp;|&nbsp;
                   <a ng-click="candidateVm.resend(candidate._uid_)" href="">RESEND</a> &nbsp;|&nbsp;
-                  <a ng-click="candidateVm.cancel(candidate._uid_)" href="">CANCEL</a>
+                  <a ng-click="candidateVm.showModal(candidate._uid_, candidate.email)" href="">CANCEL</a>
                 </td>
               </tr>
             </tbody>
@@ -106,17 +106,16 @@
       </div>
     </div>
   </div>
+  <dialog id="dialog" class="mdl-dialog">
+    <h4 class="mdl-dialog__title">Cancel</h4>
+    <div class="mdl-dialog__content">
+      <p>
+        Are you sure that you wan't to cancel the invite sent to {{candidateVm.candidate_email}}?
+      </p>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button submit">Yes</button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+  </dialog>
 </div>
-<dialog id="dialog" class="mdl-dialog">
-  <h4 class="mdl-dialog__title">Are you sure you wan't to delete candidate information for?</h4>
-  <!-- <div class="mdl-dialog__content">
-  <p>
-    Allowing us to collect data will let us get you the information you want faster.
-  </p>
-</div>
- -->
-  <div class="mdl-dialog__actions">
-    <button type="button" class="mdl-button">Yes</button>
-    <button type="button" class="mdl-button close">Cancel</button>
-  </div>
-</dialog>
