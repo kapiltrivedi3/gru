@@ -97,7 +97,8 @@
                 <td class="mdl-data-table__cell--non-numeric">
                   <a ui-sref="invite.edit({quizID: candidateVm.quizID, candidateID: candidate._uid_})">EDIT</a> &nbsp;|&nbsp;
                   <a ng-click="candidateVm.resend(candidate._uid_)" href="">RESEND</a> &nbsp;|&nbsp;
-                  <a ng-click="candidateVm.showModal(candidate._uid_, candidate.email)" href="">CANCEL</a>
+                  <a ng-click="candidateVm.showModal(candidate._uid_, candidate.email)" href="">CANCEL</a> &nbsp;|&nbsp;
+                  <a ng-click="candidateVm.showCancelModal(candidate._uid_, candidate.email)" href="">MODAL</a>
                 </td>
               </tr>
             </tbody>
@@ -115,7 +116,15 @@
     </div>
     <div class="mdl-dialog__actions">
       <button type="button" class="mdl-button submit">Yes</button>
-      <button type="button" class="mdl-button close">Cancel</button>
+      <button type="button" class="mdl-button close" ng-click="mainVm.hideModal()">Cancel</button>
     </div>
   </dialog>
+  <div class="canel-invite-template ng-hide">
+    <h4 class="mdl-dialog__title">Cancel</h4>
+    <div class="mdl-dialog__content pb-0">
+      <p>
+        Are you sure that you wan't to cancel the invite sent to {{candidateVm.candidate_email}}?
+      </p>
+    </div>
+  </div>
 </div>

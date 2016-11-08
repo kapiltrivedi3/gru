@@ -254,7 +254,7 @@
     }
   }
 
-  function candidatesController($rootScope, $stateParams, $state, inviteService, moment) {
+  function candidatesController($scope, $rootScope, $stateParams, $state, inviteService, moment) {
     candidatesVm = this;
     candidatesVm.sortType = 'score';
     candidatesVm.sortReverse = true;
@@ -262,6 +262,7 @@
     candidatesVm.cancel = cancel;
     candidatesVm.resend = resend;
     candidatesVm.showModal = showModal;
+    candidatesVm.showCancelModal = showCancelModal;
     candidatesVm.candidate_email = "";
 
     candidatesVm.quizID = $stateParams.quizID;
@@ -309,6 +310,22 @@
       console.log(email)
       candidatesVm.candidate_email = email;
       dialog.showModal();
+      dialog.querySelector('.submit').addEventListener('click', function() {
+        candidatesVm.cancel(candidateID);
+        dialog.close();
+      })
+    }
+
+    function showCancelModal(candidateID, email) {
+      console.log(email)
+      candidatesVm.candidate_email = email;
+      // dialog.showModal();
+      mainVm.openModal({
+        template: $(".canel-invite-template").html(),
+        isString: true,
+        showYes: true,
+        class: "cancel-invite-modal"
+      });
       dialog.querySelector('.submit').addEventListener('click', function() {
         candidatesVm.cancel(candidateID);
         dialog.close();
@@ -437,6 +454,7 @@
   angular.module('GruiApp').controller('candidateReportController', candidateReportDependency);
 
   var candidatesDependency = [
+    "$scope",
     "$rootScope",
     "$stateParams",
     "$state",
