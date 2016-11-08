@@ -254,10 +254,13 @@
     }
   }
 
-  function candidatesController($rootScope, $stateParams, $state, inviteService) {
+  function candidatesController($rootScope, $stateParams, $state, inviteService, moment) {
     candidatesVm = this;
     candidatesVm.sortType = 'score';
     candidatesVm.sortReverse = true;
+    candidatesVm.expires = expires;
+    candidatesVm.cancel = cancel;
+    candidatesVm.resend = resend;
 
     candidatesVm.quizID = $stateParams.quizID;
 
@@ -299,6 +302,67 @@
     }, function(err) {
       console.log(err);
     });
+
+    angular.element(document).ready(function() {
+      var dialog = document.querySelector('dialog');
+      var $delete = $('.delete-cand');
+      if (!dialog.showModal) {
+        dialogPolyfill.registerDialog(dialog);
+      }
+      $delete.on('click', function() {
+        console.log("here")
+        dialog.showModal();
+      });
+      dialog.querySelector('.close').addEventListener('click', function() {
+        dialog.close();
+      });
+    });
+
+    function expires(validity) {
+      var numDays = moment(validity).diff(moment(), 'days')
+      if (numDays == 0) {
+        return "Today"
+      } else if (numDays > 0) {
+        return numDays
+      }
+      return "Expired"
+    }
+
+    function cancel(candidateID) {
+      inviteService.cancelInvite(candidateID).then(function(cancelled) {
+        if (!cancelled) {
+          SNACKBAR({
+            message: "Invite could not be cancelled.",
+            messageType: "error",
+          })
+          return
+        }
+        SNACKBAR({
+          message: "Invite cancelled successfully.",
+        })
+        $state.transitionTo("invite.dashboard", {
+          quizID: candidatesVm.quizID,
+        })
+      })
+    }
+
+    function resend(candidateID) {
+      inviteService.resendInvite(candidateID).then(function(response) {
+        if (!response.success) {
+          SNACKBAR({
+            message: response.message,
+            messageType: "error",
+          })
+          return
+        }
+        SNACKBAR({
+          message: response.message
+        })
+        $state.transitionTo("invite.dashboard", {
+          quizID: candidatesVm.quizID,
+        })
+      })
+    }
   }
 
   function candidateReportController($rootScope, $stateParams, $state, inviteService) {
@@ -372,6 +436,7 @@
     "$stateParams",
     "$state",
     "inviteService",
+    "moment",
     candidatesController
   ];
   angular.module('GruiApp').controller('candidatesController', candidatesDependency);

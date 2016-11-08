@@ -14,14 +14,14 @@ var SENDGRID_API_KEY = flag.String("sendgrid", "", "Sendgrid API Key")
 // TODO - Later just have one IP address with port info.
 var Ip = flag.String("ip", "http://localhost:2020", "Public IP address of server")
 
-func Send(name, email, validity, token string) {
+func Send(email, validity, token string) {
 	if *SENDGRID_API_KEY == "" {
 		fmt.Println(*Ip + "/#/quiz/" + token)
 		return
 	}
 	from := mail.NewEmail("Dgraph", "join@dgraph.io")
 	subject := "Invitation for screening quiz from Dgraph"
-	to := mail.NewEmail(name, email)
+	to := mail.NewEmail("", email)
 	// TODO - Move this to a template.
 	url := fmt.Sprintf("%v/#/quiz/%v", *Ip, token)
 	body := `
@@ -30,7 +30,7 @@ func Send(name, email, validity, token string) {
     <title></title>
 </head>
 <body>
-Hello ` + name + `,
+Hello!
 <br/><br/>
 You have been invited to take the screening quiz by Dgraph.
 <br/>

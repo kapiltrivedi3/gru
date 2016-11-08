@@ -46,6 +46,7 @@ func index(quizId string) string {
 			email
 			validity
 			complete
+			cancel
 			quiz_start
 			invite_sent
 			candidate.question {
@@ -125,7 +126,7 @@ func Add(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Token sent in mail is uid + the random string.
-	go mail.Send(c.Name, c.Email, t.Format("Mon Jan 2 15:04:05 MST 2006"),
+	go mail.Send(c.Email, t.Format("Mon Jan 2 15:04:05 MST 2006"),
 		uid+c.Token)
 	sr.Message = "Candidate added successfully."
 	sr.Success = true
@@ -186,8 +187,6 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
-	go mail.Send(c.Name, c.Email, t.Format("Mon Jan 2 15:04:05 MST 2006"),
-		c.Uid+c.Token)
 	sr.Success = true
 	sr.Message = "Candidate info updated successfully."
 	w.Write(server.MarshalResponse(sr))
@@ -221,4 +220,21 @@ func Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(res)
+}
+
+func ResendInvite(w http.ResponseWriter, r *http.Request) {
+	sr := server.Response{}
+	vars := mux.Vars(r)
+	cid := vars["id"]
+
+	email := r.PostFormValue("email")
+	token := r.PostFormValue("token")
+	validity := r.PostFormValue("validity")
+	if email == "" || token == "" || validity == "" {
+		sr.Write(w, "", "Email/token/validity can't be empty.", http.StatusBadRequest)
+		return
+	}
+
+	go mail.Send(email, validity, cid+token)
+	sr.Write(w, "", "Invite has been resent.", http.StatusOK)
 }

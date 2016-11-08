@@ -121,6 +121,8 @@ angular.module('GruiApp').constant('APP_REQUIRES', {
     'javascript': ['assets/lib/js/javascript.js'],
     'marked': ['https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js'],
     'highlight': ['assets/lib/js/highlight.pack.js'],
+    'moment': ['assets/lib/js/moment.min.js'],
+    'angular-moment': ['assets/lib/js/angular-moment.min.js']
   },
 });
 

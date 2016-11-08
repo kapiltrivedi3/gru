@@ -28,29 +28,30 @@
                 <th class="mdl-data-table__cell--non-numeric">Email</th>
                 <th class="mdl-data-table__cell--non-numeric">
                   <a href="" ng-click="candidateVm.sortType = 'score'; candidateVm.sortReverse = !candidateVm.sortReverse">
-      							Score
-      							<i ng-show="candidateVm.sortType == 'score' && !candidateVm.sortReverse" class="material-icons">arrow_drop_up</i>
-      							<i ng-show="candidateVm.sortType == 'score' && candidateVm.sortReverse" class="material-icons">arrow_drop_down</i>
-      						</a>
+                    Score
+                    <i ng-show="candidateVm.sortType == 'score' && !candidateVm.sortReverse" class="material-icons">arrow_drop_up</i>
+                    <i ng-show="candidateVm.sortType == 'score' && candidateVm.sortReverse" class="material-icons">arrow_drop_down</i>
+                  </a>
                 </th>
                 <th class="mdl-data-table__cell--non-numeric">
                   <a href="" ng-click="candidateVm.sortType = 'quiz_start'; candidateVm.sortReverse = !candidateVm.sortReverse">
-      							Quiz Start
-      							<i ng-show="candidateVm.sortType == 'quiz_start' && !candidateVm.sortReverse" class="material-icons">arrow_drop_up</i>
-      							<i ng-show="candidateVm.sortType == 'quiz_start' && candidateVm.sortReverse" class="material-icons">arrow_drop_down</i>
-      						</a>
+                    Quiz Start
+                    <i ng-show="candidateVm.sortType == 'quiz_start' && !candidateVm.sortReverse" class="material-icons">arrow_drop_up</i>
+                    <i ng-show="candidateVm.sortType == 'quiz_start' && candidateVm.sortReverse" class="material-icons">arrow_drop_down</i>
+                  </a>
                 </th>
                 <th class="mdl-data-table__cell--non-numeric">Actions</th>
               </tr>
             </thead>
-            <tbody ng-repeat="candidate in candidateVm.quizCandidates | orderBy:candidateVm.sortType:candidateVm.sortReverse | filter:searchCand">
+            <tbody ng-repeat="candidate in candidateVm.quizCandidates | orderBy:candidateVm.sortType:candidateVm.sortReverse | filter:searchCand" on-finish-render="ngRepeatFinished">
               <tr ng-if="candidate.complete == 'true'">
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.name}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.email}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.score | number: 2}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.quiz_start | date : 'MMM dd, yyyy'}}</td>
                 <td class="mdl-data-table__cell--non-numeric">
-                  <a ui-sref="invite.report({candidateID: candidate._uid_})">VIEW REPORT</a>
+                  <a ui-sref="invite.report({candidateID: candidate._uid_})">VIEW REPORT</a> &nbsp;|&nbsp;
+                  <a class="delete-cand" href="">DELETE</a>
                 </td>
               </tr>
             </tbody>
@@ -63,8 +64,8 @@
         <div class="mdl-cell mdl-cell--12-col">
           <form action="#">
             <div class="mdl-textfield mdl-js-textfield">
-              <input class="mdl-textfield__input" type="text" id="sample1" ng-model="searchCand">
-              <label class="mdl-textfield__label" for="sample1">Search candidate by Name/Email</label>
+              <input class="mdl-textfield__input" type="text" id="search-cand" ng-model="searchCand">
+              <label class="mdl-textfield__label" for="search-cand">Search candidate by Name/Email</label>
             </div>
           </form>
           <table class="mdl-data-table mdl-shadow--2dp">
@@ -78,17 +79,25 @@
               <i ng-show="candidateVm.sortType == 'invite_sent' && candidateVm.sortReverse" class="material-icons">arrow_drop_down</i>
               </a>
                 </th>
-                <th class="mdl-data-table__cell--non-numeric">Validity</th>
+                <th class="mdl-data-table__cell--non-numeric">
+                  <a href="" ng-click="candidateVm.sortType = 'validity'; candidateVm.sortReverse = !candidateVm.sortReverse">
+              Expires (days)
+              <i ng-show="candidateVm.sortType == 'validity' && !candidateVm.sortReverse" class="material-icons">arrow_drop_up</i>
+              <i ng-show="candidateVm.sortType == 'validity' && candidateVm.sortReverse" class="material-icons">arrow_drop_down</i>
+              </a>
+                </th>
                 <th class="mdl-data-table__cell--non-numeric">Actions</th>
               </tr>
             </thead>
             <tbody ng-repeat="candidate in candidateVm.quizCandidates | orderBy:candidateVm.sortType:candidateVm.sortReverse | filter:searchCand">
-              <tr ng-if="candidate.complete != 'true'">
+              <tr ng-if="candidate.complete != 'true' && candidate.cancel != 'true'">
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.email}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.invite_sent | date : 'MMM dd, yyyy'}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{candidate.validity}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{candidateVm.expires(candidate.validity)}}</td>
                 <td class="mdl-data-table__cell--non-numeric">
-                  <a ui-sref="invite.edit({quizID: candidateVm.quizID, candidateID: candidate._uid_})">EDIT</a>
+                  <a ui-sref="invite.edit({quizID: candidateVm.quizID, candidateID: candidate._uid_})">EDIT</a> &nbsp;|&nbsp;
+                  <a ng-click="candidateVm.resend(candidate._uid_)" href="">RESEND</a> &nbsp;|&nbsp;
+                  <a ng-click="candidateVm.cancel(candidate._uid_)" href="">CANCEL</a>
                 </td>
               </tr>
             </tbody>
@@ -98,3 +107,16 @@
     </div>
   </div>
 </div>
+<dialog id="dialog" class="mdl-dialog">
+  <h4 class="mdl-dialog__title">Are you sure you wan't to delete candidate information for?</h4>
+  <!-- <div class="mdl-dialog__content">
+  <p>
+    Allowing us to collect data will let us get you the information you want faster.
+  </p>
+</div>
+ -->
+  <div class="mdl-dialog__actions">
+    <button type="button" class="mdl-button">Yes</button>
+    <button type="button" class="mdl-button close">Cancel</button>
+  </div>
+</dialog>

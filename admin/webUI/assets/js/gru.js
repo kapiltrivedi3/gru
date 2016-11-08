@@ -1,4 +1,3 @@
-// MATERIAL DESIGN SNACKBAR
 (function() {
 
   $(document).ready(function() {
@@ -17,7 +16,6 @@
         document.getElementById(pageID).clientHeight
       );
     }
-
 
     (function() {
       setTimeout(function() {
