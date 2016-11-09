@@ -94,6 +94,10 @@ func QuestionHandler(w http.ResponseWriter, r *http.Request) {
 	qn.Score = x.Truncate(c.score)
 	shuffleOptions(qn.Options)
 
+	qn.QnsLeft = c.numQuestions
+	qn.ScoreLeft = c.maxScoreLeft
+	qn.LastScore = c.lastScore
+	updateMap(userId, c)
 	if c.lastQnUid != "" && c.lastQnUid == qn.Id {
 		qn.Cid = c.lastQnCuid
 		server.MarshalAndWrite(w, &qn)
