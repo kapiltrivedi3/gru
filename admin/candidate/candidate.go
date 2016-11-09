@@ -2,6 +2,7 @@ package candidate
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"time"
@@ -44,9 +45,10 @@ func index(quizId string) string {
 			_uid_
 			name
 			email
+			token
 			validity
 			complete
-			cancel
+			deleted
 			quiz_start
 			invite_sent
 			candidate.question {
@@ -222,19 +224,33 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
+type resendReq struct {
+	Email    string
+	Token    string
+	Validity string
+}
+
 func ResendInvite(w http.ResponseWriter, r *http.Request) {
 	sr := server.Response{}
 	vars := mux.Vars(r)
 	cid := vars["id"]
 
-	email := r.PostFormValue("email")
-	token := r.PostFormValue("token")
-	validity := r.PostFormValue("validity")
-	if email == "" || token == "" || validity == "" {
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		sr.Write(w, "", err.Error(), http.StatusBadRequest)
+		return
+	}
+	var rr resendReq
+	if err := json.Unmarshal(b, &rr); err != nil {
+		sr.Write(w, "", err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if rr.Email == "" || rr.Token == "" || rr.Validity == "" {
 		sr.Write(w, "", "Email/token/validity can't be empty.", http.StatusBadRequest)
 		return
 	}
 
-	go mail.Send(email, validity, cid+token)
+	go mail.Send(rr.Email, rr.Validity, cid+rr.Token)
 	sr.Write(w, "", "Invite has been resent.", http.StatusOK)
 }

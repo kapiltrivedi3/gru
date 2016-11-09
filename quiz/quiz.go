@@ -152,7 +152,6 @@ type cand struct {
 	Token      string    `json:"token"`
 	Validity   string    `json:"validity"`
 	Complete   bool      `json:"complete,string"`
-	Cancel     bool      `json:"cancel,string"`
 	Quiz       []quiz    `json:"candidate.quiz"`
 	Questions  []qids    `json:"candidate.question"`
 	QuizStart  time.Time `json:"quiz_start"`
@@ -228,7 +227,6 @@ func candQuery(cid string) string {
                 token
                 validity
                 complete
-                cancel
                 quiz_start
                 candidate.quiz {
                         _uid_
@@ -272,9 +270,6 @@ func checkAndUpdate(uid string) (int, error) {
 	quiz := cand.Quiz[0]
 	if cand.Complete {
 		return http.StatusUnauthorized, fmt.Errorf("You have already completed the quiz.")
-	}
-	if cand.Cancel {
-		return http.StatusUnauthorized, fmt.Errorf("Your token isn't valid anymore. Please mail us at contact@dgraph.io.")
 	}
 	if quiz.Id == "" {
 		return http.StatusUnauthorized, fmt.Errorf("Invalid token.")
