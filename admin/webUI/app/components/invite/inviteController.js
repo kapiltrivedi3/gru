@@ -254,18 +254,20 @@
     }
   }
 
-  function candidatesController($scope, $rootScope, $stateParams, $state, inviteService, moment) {
+  function candidatesController($scope, $rootScope, $stateParams, $state, $timeout, $templateCache, inviteService, moment) {
     candidatesVm = this;
     candidatesVm.sortType = 'score';
     candidatesVm.sortReverse = true;
+
     candidatesVm.expires = expires;
+    candidatesVm.showCancelModal = showCancelModal;
+    candidatesVm.initiateCancel = initiateCancel;
+    candidatesVm.showDeleteModal = showDeleteModal;
+    candidatesVm.initiateDelete = initiateDelete;
+    candidatesVm.deleteCandFromArray = deleteFromArray;
     candidatesVm.cancel = cancel;
     candidatesVm.resend = resend;
     candidatesVm.delete = deleteCand;
-    candidatesVm.showModal = showModal;
-    candidatesVm.showCancelModal = showCancelModal;
-    candidatesVm.candidate_email = "";
-    candidatesVm.deleteCandFromArray = deleteFromArray;
 
     candidatesVm.quizID = $stateParams.quizID;
 
@@ -295,8 +297,8 @@
             candidatesVm.quizCandidates.splice(i, 1)
           }
           // TODO
-          - Maybe store invite in a format that frontend directly
-            // understands.
+          //- Maybe store invite in a format that frontend directly
+          // understands.
           if (cand.complete == "false") {
             cand.invite_sent = new Date(Date.parse(cand.invite_sent)) || '';
             continue;
@@ -313,40 +315,45 @@
       console.log(err);
     });
 
-    function showModal(candidateID, email) {
-
-      console.log(email)
-      candidatesVm.candidate_email = email;
-      dialog.showModal();
-      dialog.querySelector('.submit').addEventListener('click', function() {
-        candidatesVm.cancel(candidateID);
-        dialog.close();
-      })
+    function showCancelModal(candidate) {
+      // Timeout to let dirty checking done first then modal content get
+      // updated variable text
+      candidatesVm.currentCancel = {};
+      candidatesVm.currentCancel = candidate;
+      $timeout(function() {
+        mainVm.openModal({
+          template: "cancel-modal-template",
+          showYes: true,
+          hideClose: true,
+          class: "cancel-invite-modal",
+        });
+      }, 10);
     }
 
-    function showCancelModal(candidateID, email) {
-      console.log(email)
-      candidatesVm.candidate_email = email;
-      // dialog.showModal();
-      mainVm.openModal({
-        template: $(".canel-invite-template").html(),
-        isString: true,
-        showYes: true,
-        class: "cancel-invite-modal"
-      });
-      dialog.querySelector('.submit').addEventListener('click', function() {
-        candidatesVm.cancel(candidateID);
-        dialog.close();
-      })
+    function initiateCancel() {
+      if (candidatesVm.currentCancel) {
+        candidatesVm.cancel(candidatesVm.currentCancel);
+      }
     }
 
-    angular.element(document).ready(function() {
-      var dialog = document.querySelector('dialog');
+    function showDeleteModal(candidateID) {
+      candidatesVm.currentDelete = "";
+      candidatesVm.currentDelete = candidateID;
+      $timeout(function() {
+        mainVm.openModal({
+          template: "delete-candidate-template",
+          showYes: true,
+          hideClose: true,
+          class: "delete-candidate-modal",
+        });
+      }, 10);
+    }
 
-      dialog.querySelector('.close').addEventListener('click', function() {
-        dialog.close();
-      });
-    });
+    function initiateDelete() {
+      if (candidatesVm.currentDelete) {
+        candidatesVm.delete(candidatesVm.currentDelete);
+      }
+    }
 
     function expires(validity) {
       var numDays = moment(validity).diff(moment(), 'days')
@@ -387,6 +394,9 @@
         $state.transitionTo("invite.dashboard", {
           quizID: candidatesVm.quizID,
         })
+
+        candidatesVm.currentCancel = {};
+        mainVm.hideModal();
       })
     }
 
@@ -407,6 +417,13 @@
         $state.transitionTo("invite.dashboard", {
           quizID: candidatesVm.quizID,
         })
+
+        candidatesVm.currentDelete = "";
+        mainVm.hideModal();
+      }, function(err) {
+        console.log(error)
+        candidatesVm.currentDelete = "";
+        mainVm.hideModal();
       })
     }
 
@@ -499,6 +516,8 @@
     "$rootScope",
     "$stateParams",
     "$state",
+    "$timeout",
+    "$templateCache",
     "inviteService",
     "moment",
     candidatesController

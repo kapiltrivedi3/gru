@@ -51,7 +51,8 @@
                 <td class="mdl-data-table__cell--non-numeric">{{candidate.quiz_start | date : 'MMM dd, yyyy'}}</td>
                 <td class="mdl-data-table__cell--non-numeric">
                   <a ui-sref="invite.report({candidateID: candidate._uid_})">VIEW REPORT</a> &nbsp;|&nbsp;
-                  <a ng-click="candidateVm.delete(candidate._uid_)" href="">DELETE</a>
+                  <!-- <a ng-click="candidateVm.delete(candidate._uid_)" href="">DELETE</a> -->
+                  <a ng-click="candidateVm.showDeleteModal(candidate._uid_)" href="">DELETE</a>
                 </td>
               </tr>
             </tbody>
@@ -97,9 +98,7 @@
                 <td class="mdl-data-table__cell--non-numeric">
                   <a ui-sref="invite.edit({quizID: candidateVm.quizID, candidateID: candidate._uid_})">EDIT</a> &nbsp;|&nbsp;
                   <a ng-click="candidateVm.resend(candidate._uid_)" href="">RESEND</a> &nbsp;|&nbsp;
-                  <a ng-click="candidateVm.cancel(candidate)" href="">CANCEL</a>
-                  <!-- <a ng-click="candidateVm.showModal(candidate._uid_, candidate.email)" href="">CANCEL</a> &nbsp;|&nbsp; -->
-                  <!-- <a ng-click="candidateVm.showCancelModal(candidate._uid_, candidate.email)" href="">MODAL</a> -->
+                  <a ng-click="candidateVm.showCancelModal(candidate)" href="">CANCEL</a>
                 </td>
               </tr>
             </tbody>
@@ -108,24 +107,38 @@
       </div>
     </div>
   </div>
-  <dialog id="dialog" class="mdl-dialog">
-    <h4 class="mdl-dialog__title">Cancel</h4>
-    <div class="mdl-dialog__content">
-      <p>
-        Are you sure that you wan't to cancel the invite sent to {{candidateVm.candidate_email}}?
-      </p>
+  <!-- CANCEL MODAL TEMPLATE -->
+  <script type="text/ng-template" id="cancel-modal-template">
+    <div class="cancel-invite-template">
+      <h5 class="mdl-dialog__title">Cancel Invite</h5>
+      <div class="mdl-dialog__content pb-0">
+        <p>
+          Are you sure that you wan't to cancel the invite sent to {{candidateVm.currentCancel.email}}?
+        </p>
+        <div class="text-right pt-5">
+          <button class="mdl-button mr-20" ng-click="mainVm.hideModal()">Cancel</button>
+          <button class="mdl-button" ng-click="candidateVm.initiateCancel()">Yes</button>
+        </div>
+      </div>
     </div>
-    <div class="mdl-dialog__actions">
-      <button type="button" class="mdl-button submit">Yes</button>
-      <button type="button" class="mdl-button close" ng-click="mainVm.hideModal()">Cancel</button>
-    </div>
-  </dialog>
-  <div class="canel-invite-template ng-hide">
-    <h4 class="mdl-dialog__title">Cancel</h4>
-    <div class="mdl-dialog__content pb-0">
-      <p>
-        Are you sure that you wan't to cancel the invite sent to {{candidateVm.candidate_email}}?
-      </p>
-    </div>
-  </div>
+  </script>
+  <!-- Delete MODAL TEMPLATE -->
+  <script type="text/ng-template" id="delete-candidate-template">
+    <form class="deleteForm">
+      <div class="delete-candidate-template">
+        <h5 class="mdl-dialog__title">Delete Candidate</h5>
+        <div class="mdl-dialog__content pb-0">
+          <p>
+            Are you sure that you wan't to delete this candidate?
+          </p>
+          <div class="text-right pt-5">
+            <button class="mdl-button mr-20" ng-click="mainVm.hideModal()">Cancel</button>
+            <button type="submit" class="mdl-button" ng-click="candidateVm.initiateDelete()">Yes</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </script>
+  <!-- MODAL WRAPPER -->
+  <div data-ng-include data-src="'app/shared/_modal_template.html'"></div>
 </div>
