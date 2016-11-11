@@ -157,7 +157,6 @@ func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 	c.lastQnTime = time.Now().UTC()
 	c.lastScore = s
 	c.maxScoreLeft = c.maxScoreLeft - ms
-	c.numQuestions -= 1
 	updateMap(userId, c)
 
 	// Lets store some information about this question.

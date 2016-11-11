@@ -62,8 +62,9 @@ type Question struct {
 	LastScore float64 `json:"last_score"`
 	// Max score possible answering all the questions left.
 	ScoreLeft float64 `json:"score_left"`
-	// Number of questions left after the current one.
-	QnsLeft int `json:"qns_left"`
+	Idx       int     `json:"idx"`
+	// Total number of questions.
+	NumQns int `json:"num_qns"`
 }
 
 type question struct {
@@ -90,6 +91,7 @@ type Candidate struct {
 	validity     time.Time
 	// number of questions left.
 	numQuestions int
+	qnIdx        int
 	// max score possible from questions left.
 	maxScoreLeft float64
 	// score on last question
@@ -350,6 +352,8 @@ func checkAndUpdate(uid string) (int, error) {
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	// TODO - Get num questions from length of questions in the quiz, so that we
+	// are safe from server crashes.
 	c.numQuestions = len(qnsUnanswered)
 	c.maxScoreLeft = ms
 

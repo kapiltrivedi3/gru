@@ -94,7 +94,8 @@ func QuestionHandler(w http.ResponseWriter, r *http.Request) {
 	qn.Score = x.Truncate(c.score)
 	shuffleOptions(qn.Options)
 
-	qn.QnsLeft = c.numQuestions
+	qn.NumQns = c.numQuestions
+	qn.Idx = c.qnIdx
 	qn.ScoreLeft = c.maxScoreLeft
 	qn.LastScore = c.lastScore
 	updateMap(userId, c)
@@ -131,6 +132,8 @@ func QuestionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.lastQnUid = qn.Id
+	qn.Idx = c.qnIdx + 1
+	c.qnIdx += 1
 	updateMap(userId, c)
 	server.MarshalAndWrite(w, &qn)
 }
