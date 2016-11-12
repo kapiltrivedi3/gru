@@ -336,9 +336,9 @@
       }
     }
 
-    function showDeleteModal(candidateID) {
-      candidatesVm.currentDelete = "";
-      candidatesVm.currentDelete = candidateID;
+    function showDeleteModal(candidate) {
+      candidatesVm.currentDeleteName = candidate.name;
+      candidatesVm.currentDelete = candidate._uid_;
       $timeout(function() {
         mainVm.openModal({
           template: "delete-candidate-template",
