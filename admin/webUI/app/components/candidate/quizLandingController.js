@@ -4,12 +4,6 @@
 
     // VARIABLE DECLARATION
     qlVm = this;
-    qlVm.candidate = {
-      name: "",
-      country: {
-        name: ""
-      }
-    };
     qlVm.countries = [
       { name: 'Afghanistan', code: 'AF' },
       { name: 'Åland Islands', code: 'AX' },
@@ -255,6 +249,9 @@
       { name: 'Zambia', code: 'ZM' },
       { name: 'Zimbabwe', code: 'ZW' }
     ]
+    qlVm.candidate = {
+      name: ""
+    };
     qlVm.invalidUser = false;
     qlVm.saveName = saveName;
     mainVm.pageName = "quiz-landing";
@@ -343,7 +340,7 @@
       var checkedInput = $(".quiz-landing .mdl-checkbox__input:checked").length;
       var totalInput = qlVm.info.General.length + qlVm.info.Score.length + qlVm.info.Contact.length;
 
-      return (checkedInput == totalInput) && qlVm.candidate.name != "" && qlVm.candidate.country.name != "" ? false : true;
+      return (checkedInput == totalInput) && qlVm.candidate.name != "" && !qlVm.country && qlVm.candidate.country.name != "" ? false : true;
     }
 
     function saveName() {

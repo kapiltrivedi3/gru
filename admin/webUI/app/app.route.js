@@ -152,6 +152,7 @@
       })
       .state('quiz-landing', {
         url: '/quiz/:quiz_token',
+        css: [angularSelectCSS],
         templateUrl: quizLandingTemplate,
         resolve: helper.resolveFor('quizLandingController', 'quizLandingService'),
       })
