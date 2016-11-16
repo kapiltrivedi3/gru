@@ -300,15 +300,12 @@
           if (cand.complete == "false") {
             cand.score = 0.0;
             cand.invite_sent = new Date(Date.parse(cand.invite_sent)) || '';
+            candidatesVm.quizCandidates.splice(i, 1)
             continue;
           }
 
           cand.quiz_start = new Date(Date.parse(cand.quiz_start)) || '';
-          var score = 0.0;
-          for (var j = 0; j < cand["candidate.question"].length; j++) {
-            score += parseFloat(cand["candidate.question"][j]["candidate.score"]) || 0;
-          }
-          cand.score = score;
+          cand.score = parseFloat(cand.score);
           candidatesVm.quizCandidates[i] = cand;
         }
 
@@ -317,12 +314,21 @@
         })
 
         // To calculate percentile. We ignore those who haven't completed the test.
-        var index = 0;
-        var i = candidatesVm.quizCandidates.length
+        var lastScore = 0.0,
+          lastIdx = 0,
+          idx = 0,
+          i = candidatesVm.quizCandidates.length;
         while (i--) {
-          if (candidatesVm.quizCandidates[i].complete == "true") {
-            candidatesVm.quizCandidates[i].idx = index;
-            index++;
+          var cand = candidatesVm.quizCandidates[i]
+          if (cand.complete == "true") {
+            if (cand.score != lastScore) {
+              cand.idx = idx
+              lastScore = cand.score
+              lastIdx = idx
+            } else {
+              cand.idx = lastIdx
+            }
+            idx++
           }
           // Now that we included deleted candidates for percentile calculation, lets
           // delete them so that they aren't rendered.
@@ -330,7 +336,7 @@
             candidatesVm.quizCandidates.splice(i, 1)
           }
         }
-        candidatesVm.completedLen = index;
+        candidatesVm.completedLen = idx;
         scrollToCandidate();
       }
     }, function(err) {
@@ -496,7 +502,6 @@
       // Function
     cReportVm.initScoreCircle = initScoreCircle;
     cReportVm.isCorrect = isCorrect;
-    cReportVm.percentile = percentile;
 
     if (!cReportVm.candidateID) {
       cReportVm.inValidID = true;
@@ -545,14 +550,10 @@
         }, 0);
       });
 
-    function percentile() {
-      return ((cReportVm.total - cReportVm.idx) / cReportVm.total) * 100
-    }
-
     function initScoreCircle() {
       var circleWidth = 2 * Math.PI * 30;
 
-      var percentage = cReportVm.percentile();
+      var percentage = cReportVm.info.percentile;
 
       var circlePercentage = (circleWidth * percentage) / 100;
 
