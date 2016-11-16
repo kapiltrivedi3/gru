@@ -281,9 +281,9 @@
       $state.transitionTo("invite.add");
     }
     inviteService.getInvitedCandidates(candidatesVm.quizID).then(function(data) {
-      candidatesVm.quizCandidates = data.quiz[0]["quiz.candidate"];
+      var quizCandidates = data.quiz[0]["quiz.candidate"];
 
-      if (!candidatesVm.quizCandidates) {
+      if (!quizCandidates) {
         SNACKBAR({
           message: "Invite Candidate first to see all candidate",
           messageType: "error",
@@ -292,51 +292,41 @@
           quizID: candidatesVm.quizID,
         });
       } else {
-        // TODO - Separate out candidates who have completed the test vs who haven't
-        // taken it yet into separate arrays.
-        var i = candidatesVm.quizCandidates.length
-        while (i--) {
-          var cand = candidatesVm.quizCandidates[i]
-          if (cand.complete == "false") {
-            cand.score = 0.0;
-            cand.invite_sent = new Date(Date.parse(cand.invite_sent)) || '';
-            candidatesVm.quizCandidates.splice(i, 1)
-            continue;
+        completed = []
+        notCompleted = []
+        for (var j = 0; j < quizCandidates.length; j++) {
+          if (quizCandidates[j].complete == "false") {
+            quizCandidates[j].invite_sent = new Date(Date.parse(quizCandidates[j].invite_sent));
+            notCompleted.push(quizCandidates[j])
+            continue
           }
-
-          cand.quiz_start = new Date(Date.parse(cand.quiz_start)) || '';
-          cand.score = parseFloat(cand.score);
-          candidatesVm.quizCandidates[i] = cand;
+          quizCandidates[j].quiz_start = new Date(Date.parse(quizCandidates[j].quiz_start))
+          quizCandidates[j].score = parseFloat(quizCandidates[j].score) || 0.0;
+          completed.push(quizCandidates[j])
         }
 
-        candidatesVm.quizCandidates.sort(function(c1, c2) {
+        completed.sort(function(c1, c2) {
           return c1.score - c2.score;
         })
 
-        // To calculate percentile. We ignore those who haven't completed the test.
         var lastScore = 0.0,
           lastIdx = 0,
           idx = 0,
-          i = candidatesVm.quizCandidates.length;
+          i = completed.length;
         while (i--) {
-          var cand = candidatesVm.quizCandidates[i]
-          if (cand.complete == "true") {
-            if (cand.score != lastScore) {
-              cand.idx = idx
-              lastScore = cand.score
-              lastIdx = idx
-            } else {
-              cand.idx = lastIdx
-            }
-            idx++
+          var cand = completed[i]
+          if (cand.score != lastScore) {
+            cand.idx = idx
+            lastScore = cand.score
+            lastIdx = idx
+          } else {
+            cand.idx = lastIdx
           }
-          // Now that we included deleted candidates for percentile calculation, lets
-          // delete them so that they aren't rendered.
-          if (candidatesVm.quizCandidates[i].deleted === 'true') {
-            candidatesVm.quizCandidates.splice(i, 1)
-          }
+          idx++
         }
         candidatesVm.completedLen = idx;
+        candidatesVm.completed = completed;
+        candidatesVm.notCompleted = notCompleted;
         scrollToCandidate();
       }
     }, function(err) {
@@ -394,16 +384,16 @@
       return numDays
     }
 
-    function deleteFromArray(candidateID) {
+    function deleteFromArray(candidateID, array) {
       var idx = -1
-      for (var i = 0; i < candidatesVm.quizCandidates.length; i++) {
-        if (candidatesVm.quizCandidates[i]._uid_ == candidateID) {
+      for (var i = 0; i < array.length; i++) {
+        if (array[i]._uid_ == candidateID) {
           idx = i;
           break;
         }
       }
       if (idx >= 0) {
-        candidatesVm.quizCandidates.splice(idx, 1)
+        array.splice(idx, 1)
       }
     }
 
@@ -419,7 +409,7 @@
         SNACKBAR({
           message: "Invite cancelled successfully.",
         })
-        deleteFromArray(candidate._uid_)
+        deleteFromArray(candidate._uid_, candidatesVm.notCompleted)
         $state.transitionTo("invite.dashboard", {
           quizID: candidatesVm.quizID,
         })
@@ -442,7 +432,7 @@
           message: "Candidate deleted successfully.",
         })
 
-        deleteFromArray(candidateId)
+        deleteFromArray(candidateId, candidatesVm.completed)
         $state.transitionTo("invite.dashboard", {
           quizID: candidatesVm.quizID,
         })

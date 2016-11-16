@@ -209,12 +209,17 @@ func percentile(quizId string, cid string) (float64, error) {
 	}
 
 	candidates := res.Quiz[0].Candidates
-	for idx, cand := range candidates {
-		if cand.Complete == false {
-			// Lets delete it.
-			candidates = append(candidates[:idx], candidates[idx+1:]...)
+	i := 0
+	for _, cand := range candidates {
+		if cand.Complete == true {
+			// Lets retain only the candidates who have completed the test
+			// for percentile calculation.
+			candidates[i] = cand
+			i++
 		}
 	}
+	candidates = candidates[:i]
+
 	sort.Sort(ByScore(candidates))
 	lastScore := 0.0
 	lastIdx := len(candidates)

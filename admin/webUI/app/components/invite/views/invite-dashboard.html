@@ -45,8 +45,8 @@
                   <th class="mdl-data-table__cell--non-numeric">Actions</th>
                 </tr>
               </thead>
-              <tbody ng-repeat="candidate in candidatesVm.quizCandidates | orderBy:candidatesVm.sortType:candidatesVm.sortReverse | filter:searchCand" on-finish-render="ngRepeatFinished" ng-class="{'report-viewed': candidate._uid_ == inviteVm.reportViewed}">
-                <tr ng-show="candidate.complete == 'true'">
+              <tbody ng-repeat="candidate in candidatesVm.completed | orderBy:candidatesVm.sortType:candidatesVm.sortReverse | filter:searchCand" on-finish-render="ngRepeatFinished" ng-class="{'report-viewed': candidate._uid_ == inviteVm.reportViewed}">
+                <tr ng-show="candidate.deleted != 'true'">
                   <td class="mdl-data-table__cell--non-numeric">{{candidate.name.split(' ')[0]}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{candidate.email}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{candidate.score | number: 2}}</td>
@@ -94,8 +94,8 @@
                   <th class="mdl-data-table__cell--non-numeric">Actions</th>
                 </tr>
               </thead>
-              <tbody ng-repeat="candidate in candidatesVm.quizCandidates | orderBy:candidatesVm.sortType:candidatesVm.sortReverse | filter:searchCand">
-                <tr ng-show="candidate.complete != 'true' && candidate.cancel != 'true'">
+              <tbody ng-repeat="candidate in candidatesVm.notCompleted | orderBy:candidatesVm.sortType:candidatesVm.sortReverse | filter:searchCand">
+                <tr>
                   <td class="mdl-data-table__cell--non-numeric">{{candidate.email}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{candidate.invite_sent | date : 'MMM dd, yyyy'}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{candidatesVm.expires(candidate.validity)}}</td>
