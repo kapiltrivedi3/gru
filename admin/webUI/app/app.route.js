@@ -148,6 +148,9 @@
         parent: 'invite',
         css: [githubCSS],
         templateUrl: candidateReportTemplate,
+        params: {
+          quizID: null,
+        },
         authenticate: true,
       })
       .state('quiz-landing', {

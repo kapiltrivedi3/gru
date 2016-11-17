@@ -54,7 +54,7 @@
                   <td class="mdl-data-table__cell--non-numeric">{{candidatesVm.percentile(candidatesVm.completedLen, candidate.idx) | number: 0}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{candidate.quiz_start | date : 'MMM dd, yyyy'}}</td>
                   <td class="mdl-data-table__cell--non-numeric">
-                    <a ui-sref="invite.report({candidateID: candidate._uid_})">VIEW REPORT</a> &nbsp;|&nbsp;
+                    <a ui-sref="invite.report({candidateID: candidate._uid_, quizID: candidatesVm.quizID})">VIEW REPORT</a> &nbsp;|&nbsp;
                     <!-- <a ng-click="candidatesVm.delete(candidate._uid_)" href="">DELETE</a> -->
                     <a ng-click="candidatesVm.showDeleteModal(candidate)" href="">DELETE</a>
                   </td>

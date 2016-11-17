@@ -284,7 +284,7 @@
     candidatesVm.percentile = percentile;
 
     candidatesVm.quizID = $stateParams.quizID;
-
+    console.log(candidatesVm.quizID);
     if (!candidatesVm.quizID) {
       SNACKBAR({
         message: "Not a valid Quiz",
@@ -498,6 +498,7 @@
   function candidateReportController($scope, $rootScope, $stateParams, $state, inviteService) {
     cReportVm = this;
     cReportVm.candidateID = $stateParams.candidateID;
+    cReportVm.quizID = $stateParams.quizID;
     cReportVm.idx = $stateParams.idx;
     cReportVm.total = $stateParams.total;
     inviteVm.reportViewed = cReportVm.candidateID
@@ -522,8 +523,14 @@
         cReportVm.info.feedback = unescape(cReportVm.info.feedback).replace(/\n/, "<br>");
 
         cReportVm.initScoreCircle();
-      }, function(error) {
-        console.log(error);
+      }, function(data) {
+        var message = data && data.Message ? data.Message : "Something went wrong";
+        SNACKBAR({
+          message: message,
+        });
+        mainVm.goTo("invite.dashboard", {
+          quizID: cReportVm.quizID,
+        });
       }).then(function() {
         var questions = cReportVm.info.questions;
         var statistics = {
